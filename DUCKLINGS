@@ -1,0 +1,84 @@
+from crewai import Crew, Agent, Task
+
+# Define Agents
+
+market_analyst = Agent(
+    role="Market Analyst",
+    goal="Analyze the current market landscape for eco-friendly reusable water bottles",
+    backstory="An expert in consumer goods and sustainability trends, adept at finding insights in large datasets.",
+    verbose=True
+)
+
+competitor_scout = Agent(
+    role="Competitor Scout",
+    goal="Identify top competitors and analyze their offerings, pricing, and market positioning",
+    backstory="A strategic researcher with deep knowledge of brand positioning and competitive analysis.",
+    verbose=True
+)
+
+persona_builder = Agent(
+    role="Consumer Persona Builder",
+    goal="Create detailed consumer personas based on market and behavioral data",
+    backstory="A behavioral analyst with a knack for translating raw data into relatable audience profiles.",
+    verbose=True
+)
+
+report_compiler = Agent(
+    role="Report Compiler",
+    goal="Compile all findings into a clear, structured market research report",
+    backstory="A professional writer experienced in technical and business documentation.",
+    verbose=True
+)
+
+# Define Tasks
+
+task_market_analysis = Task(
+    description=(
+        "Research the market for reusable water bottles. Identify market size, growth trends, and consumer interest "
+        "in sustainability. Include data points and credible sources where possible."
+    ),
+    expected_output="A market analysis summary with charts or figures if available.",
+    agent=market_analyst
+)
+
+task_competitor_analysis = Task(
+    description=(
+        "Find and analyze at least 5 competitors in the reusable water bottle market. Detail their pricing, unique features, "
+        "marketing angles, and estimated market share if available."
+    ),
+    expected_output="A competitive landscape summary with brand-by-brand insights.",
+    agent=competitor_scout
+)
+
+task_persona_creation = Task(
+    description=(
+        "Based on the market and competitor analysis, define 2–3 detailed consumer personas including demographics, needs, "
+        "pain points, and motivations."
+    ),
+    expected_output="Detailed personas in a clear format.",
+    agent=persona_builder,
+    depends_on=[task_market_analysis, task_competitor_analysis]
+)
+
+task_report_compilation = Task(
+    description=(
+        "Compile all insights into a structured market research report. Include sections: Market Overview, Trends, Competitors, "
+        "Target Audience, and Recommendations."
+    ),
+    expected_output="A comprehensive market research PDF or document.",
+    agent=report_compiler,
+    depends_on=[task_market_analysis, task_competitor_analysis, task_persona_creation]
+)
+
+# Assemble the Crew
+
+market_research_crew = Crew(
+    agents=[market_analyst, competitor_scout, persona_builder, report_compiler],
+    tasks=[task_market_analysis, task_competitor_analysis, task_persona_creation, task_report_compilation],
+    verbose=True
+)
+
+# Kick off the workflow
+
+if __name__ == "__main__":
+    market_research_crew.kickoff()
